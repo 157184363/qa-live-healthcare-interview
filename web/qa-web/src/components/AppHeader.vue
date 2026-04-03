@@ -3,30 +3,39 @@
     <div class="header-content">
       <div class="logo">
         <img src="https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=100" alt="QA Live Healthcare" />
-        <span>QA Live Healthcare</span>
+        <span>{{ t.app.title }}</span>
       </div>
       <a-menu v-model:selectedKeys="selectedKeys" mode="horizontal" class="nav-menu">
         <a-menu-item key="home" @click="navigateTo('/')">
           <HomeOutlined />
-          首页
+          {{ t.app.home }}
         </a-menu-item>
         <a-menu-item key="consultation" @click="navigateTo('/consultation')">
           <MessageOutlined />
-          问诊
+          {{ t.app.consultation }}
         </a-menu-item>
         <a-menu-item key="doctors" @click="navigateTo('/doctors')">
           <TeamOutlined />
-          医生
+          {{ t.app.doctors }}
         </a-menu-item>
         <a-menu-item key="about" @click="navigateTo('/about')">
           <InfoCircleOutlined />
-          关于
+          {{ t.app.about }}
         </a-menu-item>
       </a-menu>
-      <a-button type="primary" class="login-btn" @click="navigateTo('/doctor/login')">
-        <UserOutlined />
-        医生登录
-      </a-button>
+      <div class="header-actions">
+        <a-select
+          v-model:value="currentLocale"
+          :options="availableLocales"
+          size="small"
+          class="language-selector"
+          @change="handleLanguageChange"
+        />
+        <a-button type="primary" class="login-btn" @click="navigateTo('/doctor/login')">
+          <UserOutlined />
+          {{ t.app.doctorLogin }}
+        </a-button>
+      </div>
     </div>
   </a-layout-header>
 </template>
@@ -35,10 +44,14 @@
 import { ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { HomeOutlined, MessageOutlined, TeamOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { useI18n, type Locale } from '../composables/useI18n';
 
 const router = useRouter();
 const route = useRoute();
 const selectedKeys = ref<string[]>(['home']);
+
+const { t, locale, setLocale, availableLocales } = useI18n();
+const currentLocale = ref<Locale>(locale.value);
 
 watch(() => route.path, (newPath) => {
   if (newPath === '/') {
@@ -54,6 +67,10 @@ watch(() => route.path, (newPath) => {
 
 const navigateTo = (path: string) => {
   router.push(path);
+};
+
+const handleLanguageChange = (value: Locale) => {
+  setLocale(value);
 };
 </script>
 
@@ -106,6 +123,20 @@ const navigateTo = (path: string) => {
   border: none;
   margin: 0 40px;
   line-height: 64px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.language-selector {
+  width: 120px;
+}
+
+.language-selector :deep(.ant-select-selector) {
+  border-radius: 6px;
 }
 
 .login-btn {
