@@ -31,20 +31,50 @@
           class="language-selector"
           @change="handleLanguageChange"
         />
-        <a-button type="primary" class="login-btn" @click="navigateTo('/doctor/login')">
-          <UserOutlined />
-          {{ t.app.doctorLogin }}
-        </a-button>
+        <div v-if="userStore.state.isLoggedIn" class="user-info">
+          <a-dropdown :trigger="['click']">
+            <a-button type="text" class="user-info-btn">
+              <UserOutlined />
+              {{ userStore.state.user?.name || userStore.state.user?.username }}
+            </a-button>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="logout" @click="handleLogout">
+                  <LogoutOutlined />
+                  退出登录
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </div>
+        <div v-else class="login-buttons">
+          <a-button type="primary" class="user-login-btn" @click="showUserLoginModal">
+            <UserOutlined />
+            用户登录
+          </a-button>
+          <a-button type="primary" class="doctor-login-btn" @click="navigateTo('/doctor/login')">
+            <UserOutlined />
+            {{ t.app.doctorLogin }}
+          </a-button>
+        </div>
       </div>
     </div>
+    <UserLoginModal
+      :visible="userLoginModalVisible"
+      @update:visible="(value) => userLoginModalVisible = value"
+      @success="handleUserLoginSuccess"
+      @cancel="handleUserLoginCancel"
+    />
   </a-layout-header>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { HomeOutlined, MessageOutlined, TeamOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { HomeOutlined, MessageOutlined, TeamOutlined, InfoCircleOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons-vue';
 import { useI18n, type Locale } from '../composables/useI18n';
+import UserLoginModal from './UserLoginModal.vue';
+import { userStore } from '../store/userStore';
 
 const router = useRouter();
 const route = useRoute();
@@ -52,6 +82,24 @@ const selectedKeys = ref<string[]>(['home']);
 
 const { t, locale, setLocale, availableLocales } = useI18n();
 const currentLocale = ref<Locale>(locale.value);
+
+const userLoginModalVisible = ref(false);
+
+const showUserLoginModal = () => {
+  userLoginModalVisible.value = true;
+};
+
+const handleUserLoginSuccess = () => {
+  userLoginModalVisible.value = false;
+};
+
+const handleUserLoginCancel = () => {
+  userLoginModalVisible.value = false;
+};
+
+const handleLogout = () => {
+  userStore.logout();
+};
 
 watch(() => route.path, (newPath) => {
   if (newPath === '/') {
@@ -139,13 +187,46 @@ const handleLanguageChange = (value: Locale) => {
   border-radius: 6px;
 }
 
-.login-btn {
+.user-login-btn {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.user-login-btn:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.doctor-login-btn {
   background: #52c41a;
   border-color: #52c41a;
 }
 
-.login-btn:hover {
+.doctor-login-btn:hover {
   background: #73d13d;
   border-color: #73d13d;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-info-btn {
+  color: #1890ff;
+  font-weight: 500;
+  border: none;
+  box-shadow: none;
+}
+
+.user-info-btn:hover {
+  color: #40a9ff;
+  background: rgba(24, 144, 255, 0.1);
+}
+
+.login-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>

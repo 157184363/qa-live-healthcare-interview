@@ -16,4 +16,9 @@ export const API_ENDPOINTS = {
     LOGIN: '/doctors/login',
     STATUS: (id: string) => `/doctors/${id}/status`,
   },
+  USERS: {
+    LOGIN: '/users/login',
+    REGISTER: '/users/register',
+    BY_USERNAME: (username: string) => `/users/${username}`,
+  },
 } as const;

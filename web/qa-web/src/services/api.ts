@@ -133,6 +133,27 @@ class ApiService {
       body: JSON.stringify({ isActive }),
     });
   }
+
+  // 用户登录
+  async loginUser(username: string, password: string): Promise<ApiResponse<any>> {
+    return this.request<any>(API_ENDPOINTS.USERS.LOGIN, {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    });
+  }
+
+  // 用户注册
+  async registerUser(username: string, password: string, name: string, email?: string, phone?: string): Promise<ApiResponse<any>> {
+    return this.request<any>(API_ENDPOINTS.USERS.REGISTER, {
+      method: 'POST',
+      body: JSON.stringify({ username, password, name, email, phone }),
+    });
+  }
+
+  // 根据用户名获取用户信息
+  async getUserByUsername(username: string): Promise<ApiResponse<any>> {
+    return this.request<any>(API_ENDPOINTS.USERS.BY_USERNAME(username));
+  }
 }
 
 export const apiService = new ApiService();
